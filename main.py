@@ -27,42 +27,50 @@ class Bucket:
         self.tail: oContactNode = None
 
     def add(self, contact: Contact) -> None:
-        if (self.head is None):
+        if self.head is None:
             self.head = ContactNode(contact)
             self.tail = self.head
-        else:
-            n = self.head
-            while True:
-                if n.value[0] == contact[0]:
-                    n.value = contact
-                    return
-                if n.next is None:
-                    n.next = ContactNode(contact)
-                    self.tail = n.next
-                    return
-                n = n.next
+            return
+        n = self.head
+        while True:
+            if n.value[0] == contact[0]:
+                n.value = contact
+                return
+            if n.next is None:
+                n.next = ContactNode(contact)
+                self.tail = n.next
+                self.tail.prev = n
+                return
+            n = n.next
 
     def getName(self, number: int) -> str:
         n = self.head
-        while True:
+        while n is not None:
             if n.value[0] == number:
                 return n.value[1]
-            if n.next is None:
-                return "not found" 
             n = n.next
+        return "not found" 
 
     def remove(self, number: int) -> None:
         n = self.head
-        while True:
-            if n.value[0] == number:
-                if n is self.head:
-                    self.head = n.next
+        while n is not None:
+            if n.value[0] == number:# correct number in chain
+                if n is self.head:# number is head, update head
+                    newHead = n.next
+                    n.next = None # unlink so gc knows to clean?
+                    self.head = newHead
+                    if self.head is not None:
+                        self.head.prev = None
                     return
                 elif n is self.tail:
+                    newTail = n.prev
                     n.prev = None
+                    self.tail = newTail
+                    if self.tail is not None:
+                        self.tail.next = None
                     return
                 else:
-                    n.prev.next, n.next.prev= n.next, n.prev
+                    n.prev.next, n.next.prev = n.next, n.prev
                     return
             if n.next is None:
                 return
